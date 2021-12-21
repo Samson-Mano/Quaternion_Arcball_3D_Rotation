@@ -1,0 +1,114 @@
+﻿
+            public void set_matrix(Matrix4f m1)
+            {
+                this._rotationM = m1._rotationM;
+                // this._this_quat = m1.this_quat;
+                this._m_quat = new Quaternion4f(m1.rotationM);
+                // this._this_quat.normailze_quaternion();
+            }
+
+            public double[,] quat_frm_rotationM
+            {
+                set
+                {
+                    // Write only property
+                    this._rotationM = value;
+                    double t;
+                    double temp_x, temp_y, temp_z, temp_w;
+
+
+                    if (value[2, 2] < 0)
+                    {
+                        if (value[0, 0] > value[1, 1])
+                        {
+                            t = 1 + value[0, 0] - value[1, 1] - value[2, 2];
+                            temp_x = t;
+                            temp_y = value[0, 1] + value[1, 0];
+                            temp_z = value[2, 0] + value[0, 2];
+                            temp_w = value[1, 2] - value[2, 1];
+                        }
+                        else
+                        {
+                            t = 1 - value[0, 0] + value[1, 1] - value[2, 2];
+                            temp_x = value[0, 1] + value[1, 0];
+                            temp_y = t;
+                            temp_z = value[1, 2] + value[2, 1];
+                            temp_w = value[2, 0] - value[0, 2];
+                        }
+                    }
+                    else
+                    {
+                        if (value[0, 0] < (-value[1, 1]))
+                        {
+                            t = 1 - value[0, 0] - value[1, 1] + value[2, 2];
+                            temp_x = value[2, 0] + value[0, 2];
+                            temp_y = value[1, 2] + value[2, 1];
+                            temp_z = t;
+                            temp_w = value[0, 1] - value[1, 0];
+                            // q = quat(m20 + m02, m12 + m21, t, m01 - m10);
+                        }
+                        else
+                        {
+                            t = 1 + value[0, 0] + value[1, 1] + value[2, 2];
+                            temp_x = value[1, 2] - value[2, 1];
+                            temp_y = value[2, 0] - value[0, 2];
+                            temp_z = value[0, 1] - value[1, 0];
+                            temp_w = t;
+                        }
+                    }
+                    this._m_quat = new Quaternion4f(temp_x * (0.5 / Math.Sqrt(t)),
+                         temp_y * (0.5 / Math.Sqrt(t)),
+                         temp_z * (0.5 / Math.Sqrt(t)),
+                         temp_w * (0.5 / Math.Sqrt(t)));
+
+                    // this._this_quat.normailze_quaternion();
+                }
+            }
+
+            public Quaternion4f rotationM_frm_quat
+            {
+                set
+                {
+                    // Write only property
+                    _m_quat = value;
+
+                    double n, s;
+                    double xs, ys, zs;
+                    double wx, wy, wz;
+                    double xx, xy, xz;
+                    double yy, yz, zz;
+
+                    _rotationM = new double[4, 4];
+
+                    n = (value.x * value.x) + (value.y * value.y) + (value.z * value.z) + (value.w * value.w);
+                    s = (n > 0.0f) ? 2.0f / n : 0.0f;
+
+                    xs = value.x * s;
+                    ys = value.y * s;
+                    zs = value.z * s;
+                    wx = value.w * xs;
+                    wy = value.w * ys;
+                    wz = value.w * zs;
+                    xx = value.x * xs;
+                    xy = value.x * ys;
+                    xz = value.x * zs;
+                    yy = value.y * ys;
+                    yz = value.y * zs;
+                    zz = value.z * zs;
+
+                    // rotation
+                    _rotationM[0, 0] = 1.0F - (yy + zz);
+                    _rotationM[0, 1] = xy - wz;
+                    _rotationM[0, 2] = xz + wy;
+
+                    _rotationM[1, 0] = xy + wz;
+                    _rotationM[1, 1] = 1.0F - (xx + zz);
+                    _rotationM[1, 2] = yz - wx;
+
+                    _rotationM[2, 0] = xz - wy;
+                    _rotationM[2, 1] = yz + wx;
+                    _rotationM[2, 2] = 1.0F - (xx + yy);
+
+                    _rotationM[3, 3] = 1.0F;
+                }
+            }
